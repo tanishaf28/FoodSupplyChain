@@ -1,0 +1,247 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+    # OrdererOrg defines an MSP for the Orderer organization
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: ./network/crypto-config/ordererOrganizations/example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+    - &Manufacturer
+        Name: ManufacturerMSP
+        ID: ManufacturerMSP
+        MSPDir: ./network/crypto-config/peerOrganizations/manufacturer.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('ManufacturerMSP.admin', 'ManufacturerMSP.peer', 'ManufacturerMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('ManufacturerMSP.admin','ManufacturerMSP.peer', 'ManufacturerMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('ManufacturerMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.manufacturer.example.com
+              Port: 7051
+
+    - &MiddleMen
+        Name: MiddleMenMSP
+        ID: MiddleMenMSP
+        MSPDir: ./network/crypto-config/peerOrganizations/middlemen.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('MiddleMenMSP.admin', 'MiddleMenMSP.peer', 'MiddleMenMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('MiddleMenMSP.admin', 'MiddleMenMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('MiddleMenMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.middlemen.example.com
+              Port: 8051
+
+    - &Consumer
+        Name: ConsumerMSP
+        ID: ConsumerMSP
+        MSPDir: ./network/crypto-config/peerOrganizations/consumer.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('ConsumerMSP.admin', 'ConsumerMSP.peer', 'ConsumerMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('ConsumerMSP.admin', 'ConsumerMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('ConsumerMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.consumer.example.com
+              Port: 11051
+
+################################################################################
+#
+#   SECTION: Capabilities
+#
+#   - This section defines the capabilities of fabric network.
+#
+################################################################################
+Capabilities:
+    Channel: &ChannelCapabilities
+        V1_4_3: true
+        V1_3: false
+        V1_1: false
+
+    Orderer: &OrdererCapabilities
+        V1_4_2: true
+        V1_1: false
+
+    Application: &ApplicationCapabilities
+        V1_4_2: true
+        V1_3: false
+        V1_2: false
+        V1_1: false
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+################################################################################
+#
+#   SECTION: Orderer
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for orderer related parameters
+#
+################################################################################
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    Addresses:
+        - orderer.example.com:7050
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Kafka:
+        Brokers:
+            - 127.0.0.1:9092
+    EtcdRaft:
+        Consenters:
+            - Host: orderer.example.com
+              Port: 7050
+              ClientTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+              ServerTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+            - Host: orderer2.example.com
+              Port: 7050
+              ClientTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
+              ServerTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
+            - Host: orderer3.example.com
+              Port: 7050
+              ClientTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/server.crt
+              ServerTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/server.crt
+            - Host: orderer4.example.com
+              Port: 7050
+              ClientTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
+              ServerTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
+            - Host: orderer5.example.com
+              Port: 7050
+              ClientTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/tls/server.crt
+              ServerTLSCert: network/crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/tls/server.crt
+    Organizations:
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+################################################################################
+#
+#   CHANNEL
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for channel related parameters.
+#
+################################################################################
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+Profiles:
+    TraceOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Manufacturer
+                    - *MiddleMen
+                    - *Consumer
+
+    TraceOrgsChannel:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Manufacturer
+                - *MiddleMen
+                - *Consumer
+            Capabilities:
+                <<: *ApplicationCapabilities
