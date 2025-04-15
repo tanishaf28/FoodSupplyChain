@@ -56,16 +56,10 @@ A decentralized, transparent, and secure food supply chain management system bui
 ./network.sh up createChannel -ca -s couchdb
 ./network.sh deployCC -ccn supplychain -ccp ../chaincode/ -ccl go
 2. Start Backend (Node.js)
-bash
-Copy
-Edit
 cd server
 npm install
 node app.js
 3. Start Frontend (React.js)
-bash
-Copy
-Edit
 cd client
 npm install
 npm start
@@ -77,9 +71,6 @@ npm start
 🧠 Machine learning for anomaly detection
 
 📁 Folder Structure
-bash
-Copy
-Edit
 Scm/
    scm
       ├── artifacts/            
